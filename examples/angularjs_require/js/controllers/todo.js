@@ -7,9 +7,11 @@
  * - exposes the model to the template and provides event handlers
  */
 
-define(['app', 'services/todoStorage'], function (app) {
-	return app.controller('TodoController', ['$scope', '$location', 'todoStorage', 'filterFilter',
-		function TodoController($scope, $location, todoStorage, filterFilter) {
+define([
+	'angular'
+], function (angular) {
+	return ['$scope', '$location', 'todoStorage', 'filterFilter',
+		function ($scope, $location, todoStorage, filterFilter) {
 			var todos = $scope.todos = todoStorage.get();
 
 			$scope.newTodo = '';
@@ -52,6 +54,8 @@ define(['app', 'services/todoStorage'], function (app) {
 
 			$scope.editTodo = function (todo) {
 				$scope.editedTodo = todo;
+				// Clone the original todo to restore it on demand.
+				$scope.originalTodo = angular.copy(todo);
 			};
 
 
@@ -64,6 +68,10 @@ define(['app', 'services/todoStorage'], function (app) {
 				}
 			};
 
+			$scope.revertEditing = function (todo) {
+				todos[todos.indexOf(todo)] = $scope.originalTodo;
+				$scope.doneEditing($scope.originalTodo);
+			};
 
 			$scope.removeTodo = function (todo) {
 				todos.splice(todos.indexOf(todo), 1);
@@ -83,5 +91,5 @@ define(['app', 'services/todoStorage'], function (app) {
 				});
 			};
 		}
-	]);
+	];
 });
